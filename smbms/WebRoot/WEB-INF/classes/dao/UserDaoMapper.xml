@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+	namespace=""  命名空间，防止所有的包名不能重复
+	值的规则：接口的完全包名.接口名
+ -->
+<mapper namespace="dao.UserDao">
+	<!-- 用户登录 -->
+	<select id="userLogin" resultType="pojo.User">
+		select * from smbms_user
+		where userCode = #{userCode} and userPassword = #{userPassword}
+	</select>
+	<!-- 查询用户编码存在 -->
+	<select id="queryUserExistence" resultType="int">
+		select count(*) from smbms_user
+		where userCode = #{userCode}
+	</select>
+	<!-- 查询用户密码 -->
+	<select id="queryUserPassWord" resultType="String">
+		select userPassword from smbms_user
+		where userCode = #{userCode}
+	</select>
+	<!-- 查询所有用户 -->
+	<select id="queryAllUser" resultType="pojo.User">
+		select a.*,b.roleName from smbms_user as a, smbms_role as b where a.userRole = b.id 
+		<if test="pageSize != 0">limit #{currentPageNo},#{pageSize}</if>
+	</select>
+	<!-- 查询用户数量 -->
+	<select id="queryUserNumber" resultType="int">
+		select count(*) from smbms_user
+	</select>
+	<!-- 根据用户名或角色查询用户 -->
+	<select id="queryUserNameOrUserRoleIdByUser" resultType="pojo.User">
+		select a.*,b.roleName from smbms_user as a, smbms_role as b where a.userRole = b.id 
+		<if test="userName != null"> and a.userName like CONCAT('%',#{userName},'%')</if>
+		<if test="userRoleId != null"> and b.id = #{userRoleId}</if>
+		<if test="pageSize != 0">limit #{currentPageNo},#{pageSize}</if>
+	</select>
+	<!-- 根据编号查询用户 -->
+	<select id="queryIdByUser" resultType="pojo.User">
+		select a.*,b.roleName from smbms_user as a, smbms_role as b where a.userRole = b.id and a.id = #{id}
+	</select>
+	<!-- 新增用户 -->
+	<insert id="addUser" parameterType="pojo.User">
+		insert into smbms_user values (null ,#{userCode}, #{userName}, #{userPassword}, #{gender}, #{birthday}, #{phone}, #{address}, #{userRole}, #{createdBy}, now(), #{modifyBy}, now(), #{idPicPath}, #{workPicPath})
+	</insert>
+	<!-- 修改用户 -->
+	<update id="updateUser" parameterType="pojo.User">
+		update smbms_user set userName=#{userName}, gender=#{gender}, phone=#{phone}, address=#{address}, userRole=#{userRole}, modifyBy=#{modifyBy}, modifyDate=now() where id=#{id}
+	</update>
+	<!-- 修改用户密码 -->
+	<update id="updateUserPassWord" parameterType="pojo.User">
+		update smbms_user set userPassword = #{userPassword} where userCode=#{userCode}
+	</update>
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="int">
+		delete from smbms_user where id = #{id}
+	</delete>
+</mapper>
